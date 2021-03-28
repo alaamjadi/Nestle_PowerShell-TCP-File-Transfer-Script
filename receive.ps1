@@ -18,10 +18,14 @@ Try {
     $bytes = New-Object System.Byte[] 1024
 
     # Read data from stream and write it to host
+
+    Out-File 'file.txt'
+
     while (($i = $stream.Read($bytes,0,$bytes.Length)) -ne 0){
         $EncodedText = New-Object System.Text.ASCIIEncoding
         $data = $EncodedText.GetString($bytes,0, $i)
         Write-Output $data
+        $data | Add-Content 'file.txt'
     }
 
     # Close TCP connection and stop listening
