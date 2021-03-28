@@ -5,31 +5,36 @@ Param(
     [Parameter(Mandatory=$true)][int]$port,
     [Parameter(Mandatory=$true)][string]$file
 )
+
+function Base64Encode-File
+{
+  param
+  (
+    [Parameter(Mandatory = $true)]
+    [string]$file
+  )
+  process
+  {
+    $c = Get-Content $file -Encoding Byte 
+    return [System.Convert]::ToBase64String($c)
+  }
+}
+
+
 Try {
-    # Set up endpoint and start listening
-    $EndPoint = New-Object System.Net.IPEndPoint($ip::any,$port)
-    $loopback = New-Object System.Net.IPEndPoint($ip::Loopback, $port)
-
-    # Remote host
-    $listener = new-object System.Net.Sockets.TcpClient $EndPoint
-
-    # Local Host
-    # $TcpClient=New-Object System.Net.Sockets.TcpClient($ip::Loopback, $port)
+    $TcpClient=New-Object System.Net.Sockets.TcpClient($ip::Loopback, $port)
 
     $GetStream = $TcpClient.GetStream()
     $StreamWriter = New-Object System.IO.StreamWriter $GetStream
 
-    # Creating the buffer
-    $buffer = New-Object System.Byte[] 1024
-    
-
-    while (($i = $buffer.Read($buffer,0,$buffer.Length)) -ne 0){
-        $EncodedText = New-Object System.Text.ASCIIEncoding
-        $data = $EncodedText.GetString($buffer,0, $i)
-        Write-Output $data
-        $data | Add-Content 'file.txt'
+    $fileName = Split-Path $file -leaf
+ 
+    $data = Base64Encode-File $file
+    $file= "$fileName#$data"
+    $file | %{
+        $StreamWriter.Write($_)
     }
-
+    Write-Host "File `"$file`" encoded to clipboard in $($data.Length) bytes"
     $StreamWriter.Dispose()
     $GetStream.Dispose()
     $TcpClient.Dispose()
