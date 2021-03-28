@@ -38,32 +38,38 @@ Try {
     while (($i = $stream.Read($bytes,0,$bytes.Length)) -ne 0){
         $EncodedText = New-Object System.Text.ASCIIEncoding
         $data = $EncodedText.GetString($bytes,0, $i)
-        # Write-Output $data
       }
-    $bits = $data.Split("#")
+      $bits = $data.Split("#")
       
-    # Read data from stream and write it to host
-    
-    if($bits.Length -ne 2)
-    {
-      $stream.close()
-      $listener.stop()
-      throw "Data error. Expected 2 items of data on clipboard, but got $($bits.Length)"
-    }
-    
-    $file = $bits[0]
-    if($alternativeName -ne $null -and $alternativeName.Length -gt 0)
-    {
-      $file = $alternativeName
-    }
-    $data = $bits[1]
-    Write-Output $data
+      # Read data from stream and write it to host
+      
+      if($bits.Length -ne 2)
+      {
+        $stream.close()
+        $listener.stop()
+        throw "Data error. Expected 2 items of data on clipboard, but got $($bits.Length)"
+      }
+      
+      $file = $bits[0]
+      if($alternativeName -ne $null -and $alternativeName.Length -gt 0)
+      {
+        $file = $alternativeName
+      }
+      $data = $bits[1]
+      
+      Write-Host "Receiving file `"$file`" from $($data.Length) bytes of data"
+      # Write-EmbeddedFile $data $file
+      
+      $Content = [System.Convert]::FromBase64String($data)
+      Set-Content -Path ".\$file" -Value $Content -Encoding Byte
 
-    Write-Host "Receiving file `"$file`" from $($data.Length) bytes of data"
-    # Write-EmbeddedFile $data $file
-
-    $Content = [System.Convert]::FromBase64String($data)
-    Set-Content -Path ".\$targetFile" -Value $Content -Encoding Byte
+      Get-Content -Path ".\$file"
+      
+      
+    # $Content = [System.Convert]::FromBase64String($data)
+    # Write-Output $Content
+    # Out-File $file
+    # $Content | Add-Content $file
 
     # Close TCP connection and stop listening
     $stream.close()
