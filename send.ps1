@@ -7,22 +7,27 @@ Param(
 )
 Try {
     # Set up endpoint and start listening
-    # $EndPoint = new-object System.Net.IPEndPoint([ip]::any,$port)
+    $EndPoint = New-Object System.Net.IPEndPoint($ip::any,$port)
+    $loopback = New-Object System.Net.IPEndPoint($ip::Loopback, $port)
 
     # Remote host
-    # $listener = new-object System.Net.Sockets.TcpClient $EndPoint
+    $listener = new-object System.Net.Sockets.TcpClient $EndPoint
 
     # Local Host
-    # $TcpClient=New-Object System.Net.Sockets.TcpClient([ip]::Loopback, $port)
-
-    $TcpClient=New-Object System.Net.Sockets.TcpClient($ip::Loopback, $port)
+    # $TcpClient=New-Object System.Net.Sockets.TcpClient($ip::Loopback, $port)
 
     $GetStream = $TcpClient.GetStream()
     $StreamWriter = New-Object System.IO.StreamWriter $GetStream
 
-    $file=Get-Content $file
-    $file | %{
-        $StreamWriter.Write($_)
+    # Creating the buffer
+    $buffer = New-Object System.Byte[] 1024
+    
+
+    while (($i = $buffer.Read($buffer,0,$buffer.Length)) -ne 0){
+        $EncodedText = New-Object System.Text.ASCIIEncoding
+        $data = $EncodedText.GetString($buffer,0, $i)
+        Write-Output $data
+        $data | Add-Content 'file.txt'
     }
 
     $StreamWriter.Dispose()

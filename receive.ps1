@@ -5,7 +5,7 @@ Param (
 )
 Try {
     # Set up endpoint and start listening
-    $EndPoint = new-object System.Net.IPEndPoint([IPAddress]::Any,$port) 
+    $EndPoint = new-object System.Net.IPEndPoint([IPAddress]::Any,$port)
     $listener = new-object System.Net.Sockets.TcpListener $EndPoint
     $listener.start() 
 
@@ -15,15 +15,14 @@ Try {
 
     # Stream setup
     $stream = $data.GetStream()
-    $bytes = New-Object System.Byte[] 1024
+    $buffer = New-Object System.Byte[] 1024
 
     # Read data from stream and write it to host
-
     Out-File 'file.txt'
 
-    while (($i = $stream.Read($bytes,0,$bytes.Length)) -ne 0){
+    while (($i = $buffer.Read($buffer,0,$buffer.Length)) -ne 0){
         $EncodedText = New-Object System.Text.ASCIIEncoding
-        $data = $EncodedText.GetString($bytes,0, $i)
+        $data = $EncodedText.GetString($buffer,0, $i)
         Write-Output $data
         $data | Add-Content 'file.txt'
     }
