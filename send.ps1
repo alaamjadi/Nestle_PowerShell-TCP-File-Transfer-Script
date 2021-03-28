@@ -22,7 +22,7 @@ function Base64Encode-File
 
 
 Try {
-    $TcpClient=New-Object System.Net.Sockets.TcpClient($ip::Loopback, $port)
+    $TcpClient=New-Object System.Net.Sockets.TcpClient $ip, $port
 
     $GetStream = $TcpClient.GetStream()
     $StreamWriter = New-Object System.IO.StreamWriter $GetStream
